@@ -31,7 +31,7 @@
 ### Tech Stack
 
 - Python
-- PyQt5/Godot
+- Tkinter (because James knows how to use it)
 - Serial coms (library undecided)
   - Must be able to access data via usb
   - Will be talking with arduino
@@ -65,5 +65,3 @@ We have to decide on a communication hardware/softeare protocol. Currently consi
 - RS-485
 
 We also have to decide whether we want communication to happen over a wired or wireless connection.
-
-
