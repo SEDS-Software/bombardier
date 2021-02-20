@@ -35,6 +35,10 @@ def stop():
     global count
     count = 1
 
+def reset_timer():
+    global count
+    time.set("00:00")
+
 def timer():
     global count
     if(count == 0):
@@ -43,8 +47,8 @@ def timer():
         
         s = int(s)
         ms = int(ms)
-        if(ms != 900):
-            ms += 100
+        if(ms != 90):
+            ms += 10
         else:
             ms = 0
             if(s < 59):
@@ -54,7 +58,7 @@ def timer():
         else:
             s = str(s)
         if(ms < 10):
-            ms = str(0) + str(0) + str(ms)
+            ms = str(0) + str(ms)
         else:
             ms = str(ms)
         d = s + ":" + ms
@@ -194,6 +198,37 @@ def stopPlot():
 
     stop()
 
+def resetAll():
+    stopPlot()
+    reset_timer()
+
+    with open('randomLine.csv', 'w', newline='') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames1)
+        csv_writer.writeheader()
+
+    with open('randomLine2.csv', 'w', newline='') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames2)
+        csv_writer.writeheader()
+
+    with open('randomBar.csv', 'w', newline='') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames3)
+        csv_writer.writeheader()
+
+    lines.set_data([],[])
+    fig.gca().relim()
+    fig.gca().autoscale_view()
+
+    lines2.set_data([],[])
+    lines3.set_data([],[])
+    fig2.gca().relim()
+    fig2.gca().autoscale_view()
+
+    bars.set_width(6)
+
+    canvas.draw()
+    canvas2.draw()
+    canvas3.draw()
+
 
 #GUI basic setup
 root = tk.Tk()
@@ -255,7 +290,11 @@ graphButton1.place(x=100, y=450)
 #Add button to stop the plotting of the graphs
 root.update()
 graphButton2 = tk.Button(root, text="Stop Graphs", command=stopPlot)
-graphButton2.place(x = 300, y = 450)
+graphButton2.place(x = 200, y = 450)
+
+root.update()
+graphButton3 = tk.Button(root, text = "Stop and Reset Graphs", command=resetAll)
+graphButton3.place(x = 300, y = 450)
 
 #Open all the csv files needed and set the field names to the desired fields
 with open('randomLine.csv', 'w', newline='') as csv_file:
