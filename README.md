@@ -12,7 +12,7 @@
 - [x] Display the status of x valves
   - Use color coding (make sure operator is not color blind) to signify status for better usability
   - Possibly use indicators on the P&ID in place of labeling the valve statuses
-- [ ] Countdown timer
+- [x?] Countdown timer
   - Because countdown timers are really cool
   - Show elapsed time of rocket launch
   - Since time of launch will be short, only seconds and milliseconds will be needed
@@ -21,7 +21,7 @@
   - Option to open a popup window with bar graph of all 7 thermocouples
   - Show temps in degrees C
   - Accuracy to the individual degree (decimal places are likely inaccurate and unnecessary)
-- [ ] Thrust graph
+- [] Thrust graph
   - Display the thrust data collected from the load cell in graph form
   - Graph should have scale labeled on axes
   - Possibly also graph modeled thrust curve from simulations to compare on-the-fly
