@@ -4,10 +4,10 @@
 
 ### Computer Interface
 
-- [ ] Manual Abort
+- [x] Manual Abort
   - Will allow operator to manually abort launch
   - On-screen at all times in prominent location
-- [ ] Display the status of x valves
+- [x] Display the status of x valves
   - Use color coding (make sure operator is not color blind) to signify status for better usability
   - Possibly use indicators on the P&ID in place of labeling the valve statuses
 - [ ] Countdown timer
