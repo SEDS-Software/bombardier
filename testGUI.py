@@ -10,7 +10,7 @@ import csv
 #Define field names for csv files
 fieldNames1 = ["time", "value"]
 fieldNames2 = ["time 2", "value 2", "value 3"]
-fieldNames3 = ["value 4", "value 5"]
+fieldNames3 = ["value 4"]
 
 #Flags begin as false so the graphs don't start until button is pressed
 lineplotFlag = False
@@ -136,16 +136,15 @@ def createPlot():
         canvas2.draw()
 
     if(barplotFlag):
-        value4 = np.random.rand()
-        value5 = np.random.rand()
+        value4 = np.random.rand() + 5
+        #value5 = np.random.rand()
 
         with open('randomBar.csv', 'a') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames3)
 
             info = {
 
-                "value 4": value4,
-                "value 5": value5
+                "value 4": value4
 
             }
 
@@ -225,9 +224,9 @@ ax2 = fig2.add_subplot(111)
 ax2.set_title('Random Values')
 ax2.set_xlabel('Time (Sec)')
 ax2.set_ylabel('Random Value')
-ax2.legend()
-lines2, = ax2.plot([],[], label = 'RandomPlus7')
-lines3, = ax2.plot([],[], label = 'RandomPlus3')
+lines2, = ax2.plot([],[], label = 'Random Plus 7')
+lines3, = ax2.plot([],[], label = 'Random Plus 3')
+ax2.legend(loc='upper right')
 
 canvas2 = FigureCanvasTkAgg(fig2, master=root) 
 canvas2.get_tk_widget().place(x = 620, y = 10, width = 600, height = 400) 
@@ -238,7 +237,7 @@ ax3 = fig3.add_subplot(111)
 
 ax3.set_title('Random Values')
 ax3.set_ylabel('Random Value')
-bars, = ax3.barh(range(1), 1, align = 'center')
+bars, = ax3.barh(range(1), 6, align = 'center')
 
 canvas3 = FigureCanvasTkAgg(fig3, master=root) 
 canvas3.get_tk_widget().place(x = 1230, y = 10, width = 600, height = 400) 
