@@ -2,6 +2,8 @@
 
 ## GUI
 
+![Current state of the gui](https://github.com/SEDS-Software/bombardier/blob/gui/status.png?raw=true)
+
 ### Computer Interface
 
 - [x] Manual Abort
