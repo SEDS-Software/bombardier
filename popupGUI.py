@@ -6,6 +6,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.dates import DateFormatter
 #Used to obtain time for inputs and stop watch
 from datetime import datetime
+#Used to handle images in Tkinter
+from PIL import ImageTk, Image
 
 #Import tkinter for use in making GUI
 import tkinter as tk
@@ -171,7 +173,7 @@ def createGUI():
 
 #Function to create popup window containing all graphs
 def popupWindow():
-    global lines, lines2, lines3, bars, fig, fig2, fig3, canvas, canvas2, canvas3
+    global lines, lines2, lines3, bars, fig, fig2, fig3, canvas, canvas2, canvas3, popup
     popup = tk.Toplevel()
     popup.title("Graphs of Data")
     popup.minsize(1920, 1080)
@@ -222,8 +224,22 @@ def popupWindow():
     canvas3.get_tk_widget().place(x = 1230, y = 10, width = 600, height = 400) 
     canvas3.draw()
 
+    #Ensure that user cannot close out of popup window without pressing designated button
+    popup.protocol("WM_DELETE_WINDOW", disableEvent)
+
     createGUI()
     popup.mainloop()
+
+#Function to manually close popup window and reset start button
+def closePopup():
+    global popup, startFlag
+    startFlag = True
+    popup.destroy()
+    graphButton1["state"] = "normal"
+
+#This changes the X button of the popup window to do nothing instead of exiting
+def disableEvent():
+    pass
 
 #Set flags to True to allow the graphs to begin graphing
 def startPlot():
@@ -342,7 +358,7 @@ def resetAll():
 root = tk.Tk()
 root.title("User Control Panel")
 root.config(background = 'light slate gray')
-root.geometry("475x300")
+root.geometry("800x450")
 root.resizable(0, 0)
 time = tk.StringVar()
 time.set("00:00.00")
@@ -355,18 +371,30 @@ timerLabel.place(x=100, y=75)
 
 #Add button to start the plotting of the graphs
 root.update()
-graphButton1 = tk.Button(root, text="Start Graphs", command=startPlot)
+graphButton1 = tk.Button(root, text="Display/Start Graphs", command=startPlot)
 graphButton1.place(x=75, y=175)
 
 #Add button to stop the plotting of the graphs
 root.update()
 graphButton2 = tk.Button(root, text="Stop Graphs", command=stopPlot)
-graphButton2.place(x = 175, y = 175)
+graphButton2.place(x = 197, y = 175)
 
 #Add button to allow us to stop and reset all features of GUI
 root.update()
 graphButton3 = tk.Button(root, text = "Stop and Reset Graphs", command=resetAll)
 graphButton3.place(x = 275, y = 175)
+
+#Add button to close the popup window containing graphs
+root.update()
+graphButton4 = tk.Button(root, text = "Close Graphs", command=closePopup)
+graphButton4.place(x = 197, y = 225)
+
+#Add image of P&ID to user control panel
+image = Image.open("PID_valves.png")
+image = image.resize((300, 400), Image.ANTIALIAS)
+photoImg = ImageTk.PhotoImage(image)
+photoLabel = tk.Label(image = photoImg)
+photoLabel.place(x = 450, y = 10)
 
 #Open all the csv files needed and set the field names to the desired fields
 with open('randomLine.csv', 'w', newline='') as csv_file:
