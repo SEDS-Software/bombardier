@@ -169,6 +169,7 @@ def createGUI():
     #Wait for 100 milliseconds then loop this function
     root.after(100, createGUI)
 
+#Function to create popup window containing all graphs
 def popupWindow():
     global lines, lines2, lines3, bars, fig, fig2, fig3, canvas, canvas2, canvas3
     popup = tk.Toplevel()
