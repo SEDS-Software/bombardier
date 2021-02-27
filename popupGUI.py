@@ -301,6 +301,35 @@ def stopPlot():
 
     graphButton1["state"] = "normal"
 
+#Function that will stop all processes and prevent the user from further imputs.
+def abort():
+    global photoLabel2
+    #Only stop graphs if graphs were started
+    if(not startFlag):
+        stopPlot()
+
+    #Change the status image to designated status image
+    image3 = Image.open("Frown.png")
+    image3 = image3.resize((100, 100), Image.ANTIALIAS)
+    photoImg3 = ImageTk.PhotoImage(image3)
+
+    photoLabel2.config(image = photoImg3)
+    photoLabel2.config(text = "Status: ABORTED")
+    photoLabel2.image = photoImg3
+
+    #Disable all buttons so that user cannot input anything else
+    graphButton1["state"] = "disabled"
+    graphButton2["state"] = "disabled"
+    graphButton3["state"] = "disabled"
+    graphButton4["state"] = "disabled"
+    graphButton5["state"] = "disabled"
+
+    #Display text showing that the program was aborted and what to do.
+    GUILabel = tk.Label(root, text = "Program aborted. Restart to reset.")
+    GUILabel.config(bg= "seashell2")
+    GUILabel.config(relief = "solid")
+    GUILabel.place(x = 50, y = 375)
+    
 
 #Code to reset all graphs, CSVs, and the stopwatch
 def resetAll():
@@ -389,12 +418,29 @@ root.update()
 graphButton4 = tk.Button(root, text = "Close Graphs", command=closePopup)
 graphButton4.place(x = 197, y = 225)
 
+#Add Abort button to stop all processes WIP
+root.update()
+graphButton5 = tk.Button(root, text = "ABORT", font = ("Courier", 25), background = 'red', command=abort)
+graphButton5.config(height = 1, width = 6)
+graphButton5.place(x = 75, y = 300)
+
 #Add image of P&ID to user control panel
 image = Image.open("PID_valves.png")
 image = image.resize((300, 400), Image.ANTIALIAS)
 photoImg = ImageTk.PhotoImage(image)
 photoLabel = tk.Label(image = photoImg)
+photoLabel.config(bg= "seashell2")
+photoLabel.config(relief = "solid")
 photoLabel.place(x = 450, y = 10)
+
+#Add image to show status of program at all times
+image2 = Image.open("Smile.png")
+image2 = image2.resize((100, 100), Image.ANTIALIAS)
+photoImg2 = ImageTk.PhotoImage(image2)
+photoLabel2 = tk.Label(root, text = "Status: All Good", image = photoImg2, compound = "bottom")
+photoLabel2.config(bg= "light slate gray")
+photoLabel2.config(relief = "ridge")
+photoLabel2.place(x = 250, y = 285)
 
 #Open all the csv files needed and set the field names to the desired fields
 with open('randomLine.csv', 'w', newline='') as csv_file:
