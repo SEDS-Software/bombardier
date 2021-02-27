@@ -49,7 +49,7 @@ def createGUI():
         #Find how much time has elapsed since the program started
         timeDif = time1Obj - startTime
         #Update stop watch with current time elapsed
-        time.set(str(timeDif))
+        time.set(str(timeDif)[2:10])
 
         #Open the corresponding csv file and add the generated values (Just for testing)
         with open('randomLine.csv', 'a') as csv_file:
@@ -91,7 +91,7 @@ def createGUI():
         #Update the time elapsed
         timeDif = time2Obj - startTime
         #Update time on stopwatch
-        time.set(str(timeDif))
+        time.set(str(timeDif)[2:10])
 
         #Add values to second csv
         with open('randomLine2.csv', 'a') as csv_file:
@@ -127,14 +127,14 @@ def createGUI():
 
     if(barplotFlag):
         #Generate random value for bar graph
-        value4 = np.random.rand() + 5
+        value4 = np.random.rand() * 6
 
         #Find and update time elapsed
         time3 = datetime.now()
         timeDif = time3 - startTime
 
         #Update stopwatch
-        time.set(str(timeDif))
+        time.set(str(timeDif)[2:10])
 
         #Add generated value to csv
         with open('randomBar.csv', 'a') as csv_file:
@@ -172,8 +172,10 @@ def createGUI():
 def startPlot():
     global lineplotFlag, lineplotFlag2, barplotFlag, startTime, RSFlag, stopTime, stopFlag
 
+    #When pressing the start button make sure that stop and reset buttons are enabled
     graphButton2["state"] = "normal"
     graphButton3["state"] = "normal"
+    graphButton1["state"] = "disabled"
 
 
     #Find the time the program starts and only run at the beginning or after the graphs are reset
@@ -181,7 +183,7 @@ def startPlot():
         startTime = datetime.now()
         RSFlag = False
 
-
+    #If the stop button is pressed, save the current time on the stopwatch so that if we press start again, the time does not change
     if(stopFlag):
         startTime2 = datetime.now()
         timeDelta = startTime2 - stopTime
@@ -215,10 +217,13 @@ def stopPlot():
     if(barplotFlag):
         barplotFlag = False
 
+    #If the stop button was pressed, then save the time that it was pressed and disable the stop and reset button
     if(not RSFlag):
         stopTime = datetime.now()
         stopFlag = True
         graphButton3["state"] = "disabled"
+
+    graphButton1["state"] = "normal"
 
 
 #Code to reset all graphs, CSVs, and the stopwatch
@@ -251,7 +256,7 @@ def resetAll():
         time2 = 0
 
         #Reset the text of our stopwatch to the starting value
-        time.set('0:00:00.000000')
+        time.set('00:00.00')
 
         #Reset the single line graph to being empty
         lines.set_data([],[])
@@ -279,7 +284,7 @@ root.title("Test Data Panel")
 root.config(background = 'mint cream')
 root.geometry("1920x1080")
 time = tk.StringVar()
-time.set("0:00:00.000000")
+time.set("00:00.00")
 
 
 #Create a figure object to be added to the GUI
