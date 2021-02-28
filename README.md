@@ -12,11 +12,11 @@
 - [x] Display the status of x valves
   - Use color coding (make sure operator is not color blind) to signify status for better usability
   - Possibly use indicators on the P&ID in place of labeling the valve statuses
-- [x?] Countdown timer
+- [x] Countdown timer
   - Because countdown timers are really cool
   - Show elapsed time of rocket launch
   - Since time of launch will be short, only seconds and milliseconds will be needed
-- [ ] Thermocouple temps
+- [x] Thermocouple temps
   - Display the main thermocouple temp updating as fast as possible (max update time 500ms | ideal update time <100ms)
   - Option to open a popup window with bar graph of all 7 thermocouples
   - Show temps in degrees C
