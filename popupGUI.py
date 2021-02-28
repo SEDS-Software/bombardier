@@ -31,6 +31,7 @@ barplotFlag = False
 stopFlag = False
 RSFlag = True
 startFlag = True
+pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = False, False, False, False, False
 
 #Define times for input x values
 time1 = 0
@@ -165,8 +166,6 @@ def createGUI():
 
         #Redraw the figure on the GUI
         canvas3.draw()
-
-    
 
     #Wait for 100 milliseconds then loop this function
     root.after(100, createGUI)
@@ -303,9 +302,9 @@ def stopPlot():
 
 #Function that will stop all processes and prevent the user from further imputs.
 def abort():
-    global photoLabel2
+    global photoLabel2, pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag
     #Only stop graphs if graphs were started
-    if(not startFlag):
+    if(startFlag):
         stopPlot()
 
     #Change the status image to designated status image
@@ -323,12 +322,21 @@ def abort():
     graphButton3["state"] = "disabled"
     graphButton4["state"] = "disabled"
     graphButton5["state"] = "disabled"
+    valveButton6["state"] = "disabled"
+    valveButton7["state"] = "disabled"
+
+    statusLabel1.config(bg = "red")
+    statusLabel2.config(bg = "red")
+    statusLabel3.config(bg = "red")
+    statusLabel4.config(bg = "red")
+    statusLabel5.config(bg = "red")
+    pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = False, False, False, False, False
 
     #Display text showing that the program was aborted and what to do.
     GUILabel = tk.Label(root, text = "Program aborted. Restart to reset.")
     GUILabel.config(bg= "seashell2")
     GUILabel.config(relief = "solid")
-    GUILabel.place(x = 50, y = 375)
+    GUILabel.place(x = 50, y = 600)
     
 
 #Code to reset all graphs, CSVs, and the stopwatch
@@ -382,12 +390,131 @@ def resetAll():
         canvas2.draw()
         canvas3.draw()
 
+def checkValveState(filler):
+    global variable
+    currValve = variable.get()
+    if(currValve == "Pressurizing Valve"):
+        if(pressureFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    elif(currValve == "Vent Valve"):
+        if(ventFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+    
+    elif(currValve == "Fuel Fill Valve"):
+        if(fuelFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    elif(currValve == "Drain Valve"):
+        if(drainFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["status"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    elif(currValve == "Main Valve"):
+        if(mainFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    else:
+        valveButton6["state"] = "normal"
+        valveButton7["state"] = "normal"
+
+def controlOpen():
+    global pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag, variable
+    currValve = variable.get()
+
+    if(currValve == "Pressurizing Valve"):
+        statusLabel1.config(bg = "lawn green")
+        pressureFlag = True
+
+    if(currValve == "Vent Valve"):
+        statusLabel2.config(bg = "lawn green")
+        ventFlag = True
+
+    if(currValve == "Fuel Fill Valve"):
+        statusLabel3.config(bg = "lawn green")
+        fuelFlag = True
+
+    if(currValve == "Drain Valve"):
+        statusLabel4.config(bg = "lawn green")
+        drainFlag = True
+
+    if(currValve == "Main Valve"):
+        statusLabel5.config(bg = "lawn green")
+        mainFlag = True
+
+    if(currValve == "All Valves"):
+        statusLabel1.config(bg = "lawn green")
+        statusLabel2.config(bg = "lawn green")
+        statusLabel3.config(bg = "lawn green")
+        statusLabel4.config(bg = "lawn green")
+        statusLabel5.config(bg = "lawn green")
+        pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = True, True, True, True, True
+
+    valveButton6["state"] = "disabled"
+    valveButton7["state"] = "normal"
+
+    
+        
+def controlClose():
+    global pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag, variable
+    currValve = variable.get()
+
+    if(currValve == "Pressurizing Valve"):
+        statusLabel1.config(bg = "red")
+        pressureFlag = False
+
+    if(currValve == "Vent Valve"):
+        statusLabel2.config(bg = "red")
+        ventFlag = False
+
+    if(currValve == "Fuel Fill Valve"):
+        statusLabel3.config(bg = "red")
+        fuelFlag = False
+
+    if(currValve == "Drain Valve"):
+        statusLabel4.config(bg = "red")
+        drainFlag = False
+
+    if(currValve == "Main Valve"):
+        statusLabel5.config(bg = "red")
+        mainFlag = False
+
+    if(currValve == "All Valves"):
+        statusLabel1.config(bg = "red")
+        statusLabel2.config(bg = "red")
+        statusLabel3.config(bg = "red")
+        statusLabel4.config(bg = "red")
+        statusLabel5.config(bg = "red")
+        pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = False, False, False, False, False
+
+    valveButton6["state"] = "normal"
+    valveButton7["state"] = "disabled"
+    
 
 #GUI basic setup
 root = tk.Tk()
 root.title("User Control Panel")
 root.config(background = 'light slate gray')
-root.geometry("800x450")
+root.geometry("950x670")
 root.resizable(0, 0)
 time = tk.StringVar()
 time.set("00:00.00")
@@ -395,7 +522,7 @@ time.set("00:00.00")
 #Add our stopwatch to GUI as a label 
 root.update()
 #Use textvariable to be able to update text with new times
-timerLabel = tk.Label(root, textvariable = time, font=("Courier", 40))
+timerLabel = tk.Label(root, textvariable = time, font=("Courier", 40), relief = "solid")
 timerLabel.place(x=100, y=75)
 
 #Add button to start the plotting of the graphs
@@ -422,11 +549,11 @@ graphButton4.place(x = 197, y = 225)
 root.update()
 graphButton5 = tk.Button(root, text = "ABORT", font = ("Courier", 25), background = 'red', command=abort)
 graphButton5.config(height = 1, width = 6)
-graphButton5.place(x = 75, y = 300)
+graphButton5.place(x = 75, y = 525)
 
 #Add image of P&ID to user control panel
 image = Image.open("PID_valves.png")
-image = image.resize((300, 400), Image.ANTIALIAS)
+image = image.resize((480, 640), Image.ANTIALIAS)
 photoImg = ImageTk.PhotoImage(image)
 photoLabel = tk.Label(image = photoImg)
 photoLabel.config(bg= "seashell2")
@@ -440,7 +567,54 @@ photoImg2 = ImageTk.PhotoImage(image2)
 photoLabel2 = tk.Label(root, text = "Status: All Good", image = photoImg2, compound = "bottom")
 photoLabel2.config(bg= "light slate gray")
 photoLabel2.config(relief = "ridge")
-photoLabel2.place(x = 250, y = 285)
+photoLabel2.place(x = 250, y = 510)
+
+root.update()
+statusLabel1 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel1.place(x = 783, y = 152)
+
+root.update()
+statusLabel2 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel2.place(x = 732, y = 200)
+
+root.update()
+statusLabel3 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel3.place(x = 890, y = 232)
+
+root.update()
+statusLabel4 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel4.place(x = 715, y = 347)
+
+root.update()
+statusLabel5 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel5.place(x = 783, y = 378)
+
+valves = [
+	"Pressurizing Valve",
+	"Vent Valve",
+	"Fuel Fill Valve",
+	"Drain Valve",
+	"Main Valve",
+    "All Valves"
+]
+
+variable = tk.StringVar(root)
+variable.set(valves[0])
+
+valveDropdown = tk.OptionMenu(root, variable, *valves, command = checkValveState)
+valveDropdown.place(x = 230, y = 300)
+
+root.update()
+valveButton6 = tk.Button(root, text = "Open Valve", font = ("Courier", 12), command=controlOpen)
+valveButton6.config(width = 12, height = 2)
+valveButton6.place(x = 75, y = 300)
+
+root.update()
+valveButton7 = tk.Button(root, text = "Close Valve", font = ("Courier", 12), command=controlClose)
+valveButton7.config(width = 12, height = 2)
+valveButton7.place(x = 75, y = 350)
+valveButton7["state"] = "disabled"
+
 
 #Open all the csv files needed and set the field names to the desired fields
 with open('randomLine.csv', 'w', newline='') as csv_file:
