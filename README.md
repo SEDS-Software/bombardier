@@ -60,7 +60,7 @@
 
 ## Communication
 
-We have to decide on a communication hardware/softeare protocol. Currently considering:
+We have to decide on a communication hardware/software protocol. Currently considering:
 
 - CAN
 - Modbus TCP(over ethernet?)
