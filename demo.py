@@ -2,6 +2,8 @@ import tkinter as tk
 from PIL import Image
 from PIL import ImageTk
 
+from serial_decoder import State
+
 w = 480
 h = 640
 
@@ -47,35 +49,24 @@ tc_positions = [
 	(9, 401, 585)
 ]
 
-# Contains the state of the sensors 
-valve_states = {
-	"Main Valve": 1,
-	"Vent Valve": 1,
-	"Fuel Fill Valve": 0,
-	"Pressurizing Valve": 0,
-	"Drain Valve": 1
-}
-
-pt_state = [100, 200, 300, 400]
-
-tc_state = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+state = State()
 
 # Update the indicator lights
 def update():
 	for key in rects:
-		color = red if valve_states[key] == 0 else green
+		color = red if state.valve[key] == 0 else green
 		canvas.itemconfig(rects[key], fill=color)
 
 	for i in range(0, len(pts)):
-		canvas.itemconfig(pts[i], text=str(pt_state[i]) + " psi")
+		canvas.itemconfig(pts[i], text=str(state.pt[i]) + " psi")
 
 	for i in range(0, len(tcs)):
-		canvas.itemconfig(tcs[i], text=str(tc_state[i]) + " °C")
+		canvas.itemconfig(tcs[i], text=str(state.tc[i]) + " °C")
 
 # Test function changing the state of a valve
 def toggle_state():
 	key = variable.get()
-	valve_states[key] = 1 if valve_states[key] == 0 else 0
+	state.valve[key] = 1 if state.valve[key] == 0 else 0
 	update()
 
 # Initialize window
@@ -102,16 +93,16 @@ canvas.create_image(0, 0, image=photoImg, anchor = tk.NW)
 # Create indicators
 rects = {}
 for title, x, y in valve_positions:
-	color = red if valve_states[title] == 0 else green
+	color = red if state.valve[title] == 0 else green
 	rects[title] = canvas.create_rectangle(x, y, x+led_size, y+led_size, fill=color)
 
 pts = []
 for i, x, y in pt_positions:
-	pts.append(canvas.create_text(x, y, text=str(pt_state[i]) + " psi"))
+	pts.append(canvas.create_text(x, y, text=str(state.pt[i]) + " psi"))
 
 tcs = []
 for i, x, y in tc_positions:
-	tcs.append(canvas.create_text(x, y, text=str(tc_state[i]) + " °C"))
+	tcs.append(canvas.create_text(x, y, text=str(state.tc[i]) + " °C"))
 
 # Place everything in root widget
 button.grid(row=0, column=0)
