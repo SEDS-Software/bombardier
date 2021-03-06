@@ -284,7 +284,7 @@ def abort():
     valveButton7["state"] = "disabled"
 
     #Disable all valve indicators regardless of status
-    pid_frame.updateValves(0)
+    pid_frame.update_valves(0)
 
     #Display text showing that the program was aborted and what to do.
     GUILabel = tk.Label(root, text = "Program aborted. Restart to reset.")
@@ -360,9 +360,12 @@ def controlOpen():
     #Get the current value of the dropdown menu
     currValve = variable.get()
     if(currValve == "All Valves"):
-        pid_frame.updateValves(1)
+        for valve in state.valve:
+            state.set_valve(valve, 1)
+        pid_frame.update_valves(1)
     else:
-        pid_frame.updateValve(currValve, 1)
+        state.set_valve(currValve, 1)
+        pid_frame.update_valve(currValve, 1)
 
     valveButton6["state"] = "disabled"
     valveButton7["state"] = "normal"
@@ -372,9 +375,12 @@ def controlClose():
     #Get the current value of the dropdown menu
     currValve = variable.get()
     if(currValve == "All Valves"):
-        pid_frame.updateValves(0)
+        for valve in state.valve:
+            state.set_valve(valve, 0)
+        pid_frame.update_valves(0)
     else:
-        pid_frame.updateValve(currValve, 0)
+        state.set_valve(currValve, 0)
+        pid_frame.update_valve(currValve, 0)
 
     valveButton6["state"] = "normal"
     valveButton7["state"] = "disabled"
