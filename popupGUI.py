@@ -317,7 +317,7 @@ def stopPlot():
 
 #Function that will stop all processes and prevent the user from further imputs.
 def abort():
-    global photoLabel2, pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag
+    global photoLabel2
     #Only stop graphs if graphs were started
     if(startFlag):
         stopPlot()
