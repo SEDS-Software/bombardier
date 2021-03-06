@@ -2,7 +2,8 @@
 
 ## GUI
 
-![Current state of the gui](https://github.com/SEDS-Software/bombardier/blob/gui/status.png?raw=true)
+![Current state of the gui](https://github.com/SEDS-Software/bombardier/blob/gui/status1.png?raw=true)
+![Current state of the gui](https://github.com/SEDS-Software/bombardier/blob/gui/status2.png?raw=true)
 
 ### Computer Interface
 

@@ -340,9 +340,7 @@ def abort():
     valveButton7["state"] = "disabled"
 
     #Disable all valve indicators regardless of status
-    for valve in valves:
-        state.valve[valve] = 0
-    updateValves()
+    updateValves(0)
 
     #Display text showing that the program was aborted and what to do.
     GUILabel = tk.Label(root, text = "Program aborted. Restart to reset.")
