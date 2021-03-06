@@ -2,8 +2,6 @@
 from matplotlib.figure import Figure
 #Allows matplotlib to interact with Tkinter
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-#Imported incase we need to use datetime as axis
-from matplotlib.dates import DateFormatter
 #Used to obtain time for inputs and stop watch
 from datetime import datetime
 #Used to handle images in Tkinter
@@ -21,26 +19,12 @@ import csv
 import sys
 import os
 
-#Handles the state for everything displayed on the gui
-from serial_decoder import State
 
-
-#Define field names for csv files
-fieldNames1 = ["time", "value"]
-fieldNames2 = ["time 2", "value 2", "value 3"]
-fieldNames3 = ["value 4"]
-
-#Create state object
-state = State()
-
-#Some colors for the valve labels
-red = "red"
-green = "lawn green"
+#Define field names for csv file
+fieldNames1 = ["time", "time 2", "value", "value 2", "value 3", "value 4"]
 
 #Flags begin as false so the graphs don't start until button is pressed
-lineplotFlag = False
-lineplotFlag2 = False
-barplotFlag = False
+plotFlag = False
 stopFlag = False
 RSFlag = True
 startFlag = False
@@ -52,14 +36,18 @@ time2 = 0
 
 #main function to run our GUI
 def createGUI():
-    global lineplotFlag, lineplotFlag2, barplotFlag, time1, time2, startTime, time
+    global plotFlag, startTime, time, time1, time2
 
     #Creates a single line line graph
-    if (lineplotFlag):
+    if (plotFlag):
 
         #Generate random values to be graphed
         value = np.random.rand()
         time1 = time1 + 0.1
+        time2 = time2 + 0.1
+        value2 = 10*np.random.rand() + 7
+        value3 = 10*np.random.rand() + 3
+        value4 = np.random.rand() * 6
 
         #Save the time that this operation is running
         time1Obj = datetime.now()
@@ -69,20 +57,24 @@ def createGUI():
         time.set(str(timeDif)[2:10])
 
         #Open the corresponding csv file and add the generated values (Just for testing)
-        with open('randomLine.csv', 'a') as csv_file:
+        with open('randomGraphs.csv', 'a') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames1)
 
             info = {
 
                 "time": time1,
-                "value": value
+                "time 2": time2,
+                "value": value,
+                "value 2": value2,
+                "value 3": value3,
+                "value 4": value4
 
             }
 
             csv_writer.writerow(info)
 
         #Read the csv file and save the data as 2D array
-        data = pd.read_csv('randomLine.csv')
+        data = pd.read_csv('randomGraphs.csv')
         x = data['time']
         y = data['value']
 
@@ -96,11 +88,6 @@ def createGUI():
         #Redraw the figure to update the graph on the GUI
         canvas.draw()
 
-    if(lineplotFlag2):
-        #Generate values to be graphed
-        time2 = time2 + 0.1
-        value2 = 10*np.random.rand() + 7
-        value3 = 10*np.random.rand() + 3
 
         #Find time that this process has taken place
         time2Obj = datetime.now()
@@ -110,26 +97,9 @@ def createGUI():
         #Update time on stopwatch
         time.set(str(timeDif)[2:10])
 
-        #Add values to second csv
-        with open('randomLine2.csv', 'a') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames2)
-
-            info = {
-
-                "time 2": time2,
-                "value 2": value2,
-                "value 3": value3
-
-            }
-
-            csv_writer.writerow(info)
-
-        #Read and save values to input arrays
-        data2 = pd.read_csv('randomLine2.csv')
-
-        a = data2['time 2']
-        b = data2['value 2']
-        c = data2['value 3']
+        a = data['time 2']
+        b = data['value 2']
+        c = data['value 3']
 
         #Update arrays that are used to graph the lines
         lines2.set_data(a, b)
@@ -142,9 +112,6 @@ def createGUI():
         #Redraw figure on GUI
         canvas2.draw()
 
-    if(barplotFlag):
-        #Generate random value for bar graph
-        value4 = np.random.rand() * 6
 
         #Find and update time elapsed
         time3 = datetime.now()
@@ -153,26 +120,11 @@ def createGUI():
         #Update stopwatch
         time.set(str(timeDif)[2:10])
 
-        #Add generated value to csv
-        with open('randomBar.csv', 'a') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames3)
-
-            info = {
-
-                "value 4": value4
-
-            }
-
-            csv_writer.writerow(info)
-
-        #read data from csv
-        data3 = pd.read_csv('randomBar.csv')
-
         #Find the number of elements in the array 
-        length = len(data3['value 4'])
+        length = len(data['value 4'])
 
         #Find the last element in the data array to obtain the new height of the bar graph
-        d = data3['value 4'][length - 1]
+        d = data['value 4'][length - 1]
 
         #Update the bar graph
         bars.set_width(d)
@@ -255,7 +207,7 @@ def disableEvent():
 
 #Set flags to True to allow the graphs to begin graphing
 def startPlot():
-    global lineplotFlag, lineplotFlag2, barplotFlag, startTime, RSFlag, stopTime, stopFlag, startFlag
+    global plotFlag, startTime, RSFlag, stopTime, stopFlag, startFlag
 
     #When pressing the start button make sure all graph realated buttons are enabled
     graphButton2["state"] = "normal"
@@ -277,14 +229,8 @@ def startPlot():
         stopFlag = False
 
     #Set flags for all instances in order for all graphs to begin graphing
-    if(not lineplotFlag):
-        lineplotFlag = True
-
-    if(not lineplotFlag2):
-        lineplotFlag2 = True
-
-    if(not barplotFlag):
-        barplotFlag = True
+    if(not plotFlag):
+        plotFlag = True
 
     #When you press start for the first time, create the popup window containing graphs
     if(not startFlag):
@@ -294,17 +240,11 @@ def startPlot():
 
 #Set flags to false to stop plotting graphs
 def stopPlot():
-    global lineplotFlag, lineplotFlag2, barplotFlag, stopTime, stopFlag, RSFlag
+    global plotFlag, stopTime, stopFlag, RSFlag
 
     #Set flags for all instances to stop all graphs from graphing
-    if(lineplotFlag):
-        lineplotFlag = False
-    
-    if(lineplotFlag2):
-        lineplotFlag2 = False
-
-    if(barplotFlag):
-        barplotFlag = False
+    if(plotFlag):
+        plotFlag = False
 
     #If the stop button was pressed, then save the time that it was pressed and disable the stop and reset button
     if(not RSFlag):
@@ -339,8 +279,13 @@ def abort():
     valveButton6["state"] = "disabled"
     valveButton7["state"] = "disabled"
 
-    #Disable all valve indicators regardless of status
-    updateValves(0)
+    #"Close" all valves regardless of their status
+    statusLabel1.config(bg = "red")
+    statusLabel2.config(bg = "red")
+    statusLabel3.config(bg = "red")
+    statusLabel4.config(bg = "red")
+    statusLabel5.config(bg = "red")
+    pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = False, False, False, False, False
 
     #Display text showing that the program was aborted and what to do.
     GUILabel = tk.Label(root, text = "Program aborted. Restart to reset.")
@@ -366,18 +311,11 @@ def resetAll():
         #Stop plotting the data
         stopPlot()
 
-        #Clear the CSVs by recreating the CSVs with no data points
-        with open('randomLine.csv', 'w', newline='') as csv_file:
+        #Clear the CSV by recreating the CSV with no data points
+        with open('randomGraphs.csv', 'w', newline='') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames1)
             csv_writer.writeheader()
 
-        with open('randomLine2.csv', 'w', newline='') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames2)
-            csv_writer.writeheader()
-
-        with open('randomBar.csv', 'w', newline='') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames3)
-            csv_writer.writeheader()
 
         #Reset starting variables
         time1 = 0
@@ -405,45 +343,124 @@ def resetAll():
         canvas2.draw()
         canvas3.draw()
 
-def updateValves(new_state):
-    for valve in state.valve:
-        updateValve(valve, new_state)
-
-def updateValve(valve, new_state):
-    state.valve[valve] = new_state
-    color = red if new_state == 0 else green
-    valveLabels[valve].config(bg = color)
-
 #Function to check the current status of the selected valve and set button values appropriately
 def checkValveState(filler):
     global variable
     #Get the current value of the dropdown menu
     currValve = variable.get()
-    if(currValve == "All Valves"):
+    #Depending on the state of the selected valve, change the buttons available
+    if(currValve == "Pressurizing Valve"):
+        if(pressureFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    elif(currValve == "Vent Valve"):
+        if(ventFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+    
+    elif(currValve == "Fuel Fill Valve"):
+        if(fuelFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    elif(currValve == "Drain Valve"):
+        if(drainFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["status"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    elif(currValve == "Main Valve"):
+        if(mainFlag):
+            valveButton6["state"] = "disabled"
+            valveButton7["state"] = "normal"
+        else:
+            valveButton6["state"] = "normal"
+            valveButton7["state"] = "disabled"
+
+    else:
         valveButton6["state"] = "normal"
         valveButton7["state"] = "normal"
-    else:
-        valveButton6["state"] = "disabled" if state.valve[currValve] == 1 else "normal"
-        valveButton7["state"] = "disabled" if state.valve[currValve] == 0 else "normal"
 
 #Depending on the valve selected, "open" the valve
 def controlOpen():
+    global pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag, variable
     currValve = variable.get()
+
+    if(currValve == "Pressurizing Valve"):
+        statusLabel1.config(bg = "lawn green")
+        pressureFlag = True
+
+    if(currValve == "Vent Valve"):
+        statusLabel2.config(bg = "lawn green")
+        ventFlag = True
+
+    if(currValve == "Fuel Fill Valve"):
+        statusLabel3.config(bg = "lawn green")
+        fuelFlag = True
+
+    if(currValve == "Drain Valve"):
+        statusLabel4.config(bg = "lawn green")
+        drainFlag = True
+
+    if(currValve == "Main Valve"):
+        statusLabel5.config(bg = "lawn green")
+        mainFlag = True
+
     if(currValve == "All Valves"):
-        updateValves(1)
-    else:
-        updateValve(currValve, 1)
+        statusLabel1.config(bg = "lawn green")
+        statusLabel2.config(bg = "lawn green")
+        statusLabel3.config(bg = "lawn green")
+        statusLabel4.config(bg = "lawn green")
+        statusLabel5.config(bg = "lawn green")
+        pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = True, True, True, True, True
 
     valveButton6["state"] = "disabled"
     valveButton7["state"] = "normal"
 
 #Depending on the valve selected, "close" the valve
 def controlClose():
+    global pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag, variable
     currValve = variable.get()
+
+    if(currValve == "Pressurizing Valve"):
+        statusLabel1.config(bg = "red")
+        pressureFlag = False
+
+    if(currValve == "Vent Valve"):
+        statusLabel2.config(bg = "red")
+        ventFlag = False
+
+    if(currValve == "Fuel Fill Valve"):
+        statusLabel3.config(bg = "red")
+        fuelFlag = False
+
+    if(currValve == "Drain Valve"):
+        statusLabel4.config(bg = "red")
+        drainFlag = False
+
+    if(currValve == "Main Valve"):
+        statusLabel5.config(bg = "red")
+        mainFlag = False
+
     if(currValve == "All Valves"):
-        updateValves(0)
-    else:
-        updateValve(currValve, 0)
+        statusLabel1.config(bg = "red")
+        statusLabel2.config(bg = "red")
+        statusLabel3.config(bg = "red")
+        statusLabel4.config(bg = "red")
+        statusLabel5.config(bg = "red")
+        pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = False, False, False, False, False
 
     valveButton6["state"] = "normal"
     valveButton7["state"] = "disabled"
@@ -457,7 +474,6 @@ def restartButton():
 #GUI basic setup
 root = tk.Tk()
 root.title("User Control Panel")
-root.iconbitmap("logo.ico")
 root.config(background = 'light slate gray')
 root.geometry("950x670")
 root.resizable(0, 0)
@@ -518,28 +534,35 @@ photoLabel2.config(relief = "ridge")
 photoLabel2.place(x = 250, y = 510)
 
 #Add colored labels to represent status of valves on the P&ID
-valves = [
-    "Pressurizing Valve",
-    "Vent Valve",
-    "Fuel Fill Valve",
-    "Drain Valve",
-    "Main Valve",
-    "All Valves"
-]
-valve_positions = [
-    ("Main Valve", 783, 378),
-    ("Vent Valve", 732, 200),
-    ("Fuel Fill Valve", 890, 232),
-    ("Pressurizing Valve", 783, 152),
-    ("Drain Valve", 715, 347)
-]
-valveLabels = {}
-for title, x, y in valve_positions:
-    color = red if state.valve[title] == 0 else green
-    valveLabels[title] = tk.Label(width = 2, height = 1, bg = color, relief = "solid")
-    valveLabels[title].place(x = x, y = y)
+root.update()
+statusLabel1 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel1.place(x = 783, y = 152)
 
 root.update()
+statusLabel2 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel2.place(x = 732, y = 200)
+
+root.update()
+statusLabel3 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel3.place(x = 890, y = 232)
+
+root.update()
+statusLabel4 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel4.place(x = 715, y = 347)
+
+root.update()
+statusLabel5 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
+statusLabel5.place(x = 783, y = 378)
+
+#Setup valve names for dropdown menu
+valves = [
+	"Pressurizing Valve",
+	"Vent Valve",
+	"Fuel Fill Valve",
+	"Drain Valve",
+	"Main Valve",
+    "All Valves"
+]
 
 #Sets the default value of the dropdown menu to be the first item on the list
 variable = tk.StringVar(root)
@@ -564,16 +587,8 @@ valveButton7["state"] = "disabled"
 
 
 #Open all the csv files needed and set the field names to the desired fields
-with open('randomLine.csv', 'w', newline='') as csv_file:
+with open('randomGraphs.csv', 'w', newline='') as csv_file:
     csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames1)
-    csv_writer.writeheader()
-
-with open('randomLine2.csv', 'w', newline='') as csv_file:
-    csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames2)
-    csv_writer.writeheader()
-
-with open('randomBar.csv', 'w', newline='') as csv_file:
-    csv_writer = csv.DictWriter(csv_file, fieldnames=fieldNames3)
     csv_writer.writeheader()
 
 
