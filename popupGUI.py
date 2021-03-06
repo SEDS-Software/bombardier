@@ -17,6 +17,9 @@ import pandas as pd
 import numpy as np
 #Used to be able to use csv files
 import csv
+#Used to restart the program after process is aborted
+import sys
+import os
 
 
 #Define field names for csv files
@@ -30,7 +33,7 @@ lineplotFlag2 = False
 barplotFlag = False
 stopFlag = False
 RSFlag = True
-startFlag = True
+startFlag = False
 pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag = False, False, False, False, False
 
 #Define times for input x values
@@ -232,7 +235,7 @@ def popupWindow():
 #Function to manually close popup window and reset start button
 def closePopup():
     global popup, startFlag
-    startFlag = True
+    startFlag = False
     popup.destroy()
     graphButton1["state"] = "normal"
 
@@ -244,9 +247,10 @@ def disableEvent():
 def startPlot():
     global lineplotFlag, lineplotFlag2, barplotFlag, startTime, RSFlag, stopTime, stopFlag, startFlag
 
-    #When pressing the start button make sure that stop and reset buttons are enabled
+    #When pressing the start button make sure all graph realated buttons are enabled
     graphButton2["state"] = "normal"
     graphButton3["state"] = "normal"
+    graphButton4["state"] = "normal"
     graphButton1["state"] = "disabled"
 
 
@@ -273,8 +277,8 @@ def startPlot():
         barplotFlag = True
 
     #When you press start for the first time, create the popup window containing graphs
-    if(startFlag):
-        startFlag = False
+    if(not startFlag):
+        startFlag = True
         popupWindow()
 
 
@@ -297,6 +301,7 @@ def stopPlot():
         stopTime = datetime.now()
         stopFlag = True
         graphButton3["state"] = "disabled"
+        graphButton2["state"] = "disabled"
 
     graphButton1["state"] = "normal"
 
@@ -321,10 +326,10 @@ def abort():
     graphButton2["state"] = "disabled"
     graphButton3["state"] = "disabled"
     graphButton4["state"] = "disabled"
-    graphButton5["state"] = "disabled"
     valveButton6["state"] = "disabled"
     valveButton7["state"] = "disabled"
 
+    #"Close" all valves regardless of their status
     statusLabel1.config(bg = "red")
     statusLabel2.config(bg = "red")
     statusLabel3.config(bg = "red")
@@ -337,6 +342,11 @@ def abort():
     GUILabel.config(bg= "seashell2")
     GUILabel.config(relief = "solid")
     GUILabel.place(x = 50, y = 600)
+
+    #Change abort button to be a restart button that restarts program
+    graphButton5.config(text = "RESTART")
+    graphButton5.config(width = 7)
+    graphButton5.config(command = restartButton)
     
 
 #Code to reset all graphs, CSVs, and the stopwatch
@@ -390,9 +400,12 @@ def resetAll():
         canvas2.draw()
         canvas3.draw()
 
+#Function to check the current status of the selected valve and set button values appropriately
 def checkValveState(filler):
     global variable
+    #Get the current value of the dropdown menu
     currValve = variable.get()
+    #Depending on the state of the selected valve, change the buttons available
     if(currValve == "Pressurizing Valve"):
         if(pressureFlag):
             valveButton6["state"] = "disabled"
@@ -437,6 +450,7 @@ def checkValveState(filler):
         valveButton6["state"] = "normal"
         valveButton7["state"] = "normal"
 
+#Depending on the valve selected, "open" the valve
 def controlOpen():
     global pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag, variable
     currValve = variable.get()
@@ -472,8 +486,7 @@ def controlOpen():
     valveButton6["state"] = "disabled"
     valveButton7["state"] = "normal"
 
-    
-        
+#Depending on the valve selected, "close" the valve
 def controlClose():
     global pressureFlag, ventFlag, fuelFlag, drainFlag, mainFlag, variable
     currValve = variable.get()
@@ -508,6 +521,11 @@ def controlClose():
 
     valveButton6["state"] = "normal"
     valveButton7["state"] = "disabled"
+
+def restartButton():
+    #Restarts the current program.
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
     
 
 #GUI basic setup
@@ -534,22 +552,25 @@ graphButton1.place(x=75, y=175)
 root.update()
 graphButton2 = tk.Button(root, text="Stop Graphs", command=stopPlot)
 graphButton2.place(x = 197, y = 175)
+graphButton2["state"] = "disabled"
 
 #Add button to allow us to stop and reset all features of GUI
 root.update()
 graphButton3 = tk.Button(root, text = "Stop and Reset Graphs", command=resetAll)
 graphButton3.place(x = 275, y = 175)
+graphButton3["state"] = "disabled"
 
 #Add button to close the popup window containing graphs
 root.update()
 graphButton4 = tk.Button(root, text = "Close Graphs", command=closePopup)
 graphButton4.place(x = 197, y = 225)
+graphButton4["state"] = "disabled"
 
 #Add Abort button to stop all processes WIP
 root.update()
 graphButton5 = tk.Button(root, text = "ABORT", font = ("Courier", 25), background = 'red', command=abort)
 graphButton5.config(height = 1, width = 6)
-graphButton5.place(x = 75, y = 525)
+graphButton5.place(x = 65, y = 525)
 
 #Add image of P&ID to user control panel
 image = Image.open("PID_valves.png")
@@ -569,6 +590,7 @@ photoLabel2.config(bg= "light slate gray")
 photoLabel2.config(relief = "ridge")
 photoLabel2.place(x = 250, y = 510)
 
+#Add colored labels to represent status of valves on the P&ID
 root.update()
 statusLabel1 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
 statusLabel1.place(x = 783, y = 152)
@@ -589,6 +611,7 @@ root.update()
 statusLabel5 = tk.Label(width = 2, height = 1, bg = "red", relief = "solid")
 statusLabel5.place(x = 783, y = 378)
 
+#Setup valve names for dropdown menu
 valves = [
 	"Pressurizing Valve",
 	"Vent Valve",
@@ -598,17 +621,21 @@ valves = [
     "All Valves"
 ]
 
+#Sets the default value of the dropdown menu to be the first item on the list
 variable = tk.StringVar(root)
 variable.set(valves[0])
 
+#Create and place dropdown menu onto the GUI
 valveDropdown = tk.OptionMenu(root, variable, *valves, command = checkValveState)
 valveDropdown.place(x = 230, y = 300)
 
+#Create and place open valve button onto the GUI
 root.update()
 valveButton6 = tk.Button(root, text = "Open Valve", font = ("Courier", 12), command=controlOpen)
 valveButton6.config(width = 12, height = 2)
 valveButton6.place(x = 75, y = 300)
 
+#Create and place the close valve button onto the GUI and set it as default disabled
 root.update()
 valveButton7 = tk.Button(root, text = "Close Valve", font = ("Courier", 12), command=controlClose)
 valveButton7.config(width = 12, height = 2)
