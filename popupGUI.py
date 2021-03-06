@@ -21,6 +21,7 @@ import csv
 import sys
 import os
 
+from pid_frame import PIDFrame
 #Handles the state for everything displayed on the gui
 from serial_decoder import State
 
@@ -340,7 +341,7 @@ def abort():
     valveButton7["state"] = "disabled"
 
     #Disable all valve indicators regardless of status
-    updateValves(0)
+    pid_frame.updateValves(0)
 
     #Display text showing that the program was aborted and what to do.
     GUILabel = tk.Label(root, text = "Program aborted. Restart to reset.")
@@ -405,15 +406,6 @@ def resetAll():
         canvas2.draw()
         canvas3.draw()
 
-def updateValves(new_state):
-    for valve in state.valve:
-        updateValve(valve, new_state)
-
-def updateValve(valve, new_state):
-    state.valve[valve] = new_state
-    color = red if new_state == 0 else green
-    valveLabels[valve].config(bg = color)
-
 #Function to check the current status of the selected valve and set button values appropriately
 def checkValveState(filler):
     global variable
@@ -430,9 +422,9 @@ def checkValveState(filler):
 def controlOpen():
     currValve = variable.get()
     if(currValve == "All Valves"):
-        updateValves(1)
+        pid_frame.updateValves(1)
     else:
-        updateValve(currValve, 1)
+        pid_frame.updateValve(currValve, 1)
 
     valveButton6["state"] = "disabled"
     valveButton7["state"] = "normal"
@@ -441,9 +433,9 @@ def controlOpen():
 def controlClose():
     currValve = variable.get()
     if(currValve == "All Valves"):
-        updateValves(0)
+        pid_frame.updateValves(0)
     else:
-        updateValve(currValve, 0)
+        pid_frame.updateValve(currValve, 0)
 
     valveButton6["state"] = "normal"
     valveButton7["state"] = "disabled"
@@ -499,14 +491,9 @@ graphButton5 = tk.Button(root, text = "ABORT", font = ("Courier", 25), backgroun
 graphButton5.config(height = 1, width = 6)
 graphButton5.place(x = 65, y = 525)
 
-#Add image of P&ID to user control panel
-image = Image.open("PID_valves.png")
-image = image.resize((480, 640), Image.ANTIALIAS)
-photoImg = ImageTk.PhotoImage(image)
-photoLabel = tk.Label(image = photoImg)
-photoLabel.config(bg= "seashell2")
-photoLabel.config(relief = "solid")
-photoLabel.place(x = 450, y = 10)
+# Add PID Frame for displaying sensor data
+pid_frame = PIDFrame(root, state)
+pid_frame.place(x = 450, y = 10)
 
 #Add image to show status of program at all times
 image2 = Image.open("Smile.png")
@@ -517,7 +504,6 @@ photoLabel2.config(bg= "light slate gray")
 photoLabel2.config(relief = "ridge")
 photoLabel2.place(x = 250, y = 510)
 
-#Add colored labels to represent status of valves on the P&ID
 valves = [
     "Pressurizing Valve",
     "Vent Valve",
@@ -526,20 +512,6 @@ valves = [
     "Main Valve",
     "All Valves"
 ]
-valve_positions = [
-    ("Main Valve", 783, 378),
-    ("Vent Valve", 732, 200),
-    ("Fuel Fill Valve", 890, 232),
-    ("Pressurizing Valve", 783, 152),
-    ("Drain Valve", 715, 347)
-]
-valveLabels = {}
-for title, x, y in valve_positions:
-    color = red if state.valve[title] == 0 else green
-    valveLabels[title] = tk.Label(width = 2, height = 1, bg = color, relief = "solid")
-    valveLabels[title].place(x = x, y = y)
-
-root.update()
 
 #Sets the default value of the dropdown menu to be the first item on the list
 variable = tk.StringVar(root)
