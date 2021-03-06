@@ -89,4 +89,8 @@ class PIDFrame(tk.Frame):
 	# Updates all gui elements given the new state
 	def update(self, state):
 		for valve in state.valve:
-			update_valve(valve, state.valve[valve])
+			self.update_valve(valve, state.valve[valve])
+		for i in range(len(state.pt)):
+			self.canvas.itemconfig(self.pts[i], text=str(state.pt[i]) + " psi")
+		for i in range(len(state.tc)):
+			self.canvas.itemconfig(self.tcs[i], text=str(state.tc[i]) + " °C")

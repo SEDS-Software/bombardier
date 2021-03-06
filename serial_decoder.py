@@ -1,6 +1,6 @@
 class State: # This class will hold all of the most up-to-date data on the rocket/test stand
 	def __init__(self):
-		self.decoder = Decoder()
+		self.dec = Decoder()
 		# Initializes everything to default values
 		self.valve = {
 			"Main Valve": 1,
@@ -16,10 +16,16 @@ class State: # This class will hold all of the most up-to-date data on the rocke
 	def set_valve(self, valve, new_state):
 		self.valve[valve] = new_state
 
-	# def update(self):
+	def update(self):
+		self.pt = self.dec.get_pt_data()
 
 # For now all sensor data will be simulated in python so decoder,
 # for the time being doesn't actually decode anything. It will,
 # however, be used to interface with the arduino in the future.
-class decoder:
+class Decoder:
 	def __init__(self):
+		pass
+
+	# Simulates pressure transducer senseor data
+	def get_pt_data(self):
+		return [2, 3, 4, 5]

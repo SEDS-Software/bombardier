@@ -394,6 +394,7 @@ def restartButton():
 #GUI basic setup
 root = tk.Tk()
 root.title("User Control Panel")
+root.iconbitmap("./logo.ico")
 root.config(background = 'light slate gray')
 root.geometry("950x670")
 root.resizable(0, 0)
